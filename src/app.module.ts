@@ -1,0 +1,56 @@
+import { Module } from '@nestjs/common';
+import { ConfigModule, ConfigService } from '@nestjs/config';
+import { TypeOrmModule } from '@nestjs/typeorm';
+import ormConfig from './config/orm.config';
+import ormConfigProd from './config/orm.config.prod';
+
+import { AppController } from './app.controller';
+import { AppService } from './app.service';
+import { UsersModule } from './users/users.module';
+import { AuthModule } from './auth/auth.module';
+import { CoffeesModule } from './coffees/coffees.module';
+import { IamModule } from './iam/iam.module';
+
+const envFilePath = `${process.env.NODE_ENV ?? ''}.env`;
+const typeormConfigFilePath =
+  process.env.NODE_ENV !== 'production' ? ormConfig : ormConfigProd;
+
+console.log('envFilePath: ', envFilePath);
+console.log('typeormConfigFilePath: ', typeormConfigFilePath);
+console.log(process.env.DB_PASSWORD, process.env.DB_USER);
+
+@Module({
+  imports: [
+    ConfigModule.forRoot({
+      isGlobal: true,
+      load: [ormConfig],
+      expandVariables: true,
+      envFilePath: `${process.env.NODE_ENV ?? ''}.env`,
+    }),
+    TypeOrmModule.forRootAsync({
+      imports: [ConfigModule],
+      inject: [ConfigService],
+      useFactory:
+        process.env.NODE_ENV !== 'production' ? ormConfig : ormConfigProd,
+    }),
+    UsersModule,
+    AuthModule,
+    CoffeesModule,
+    IamModule,
+  ],
+  controllers: [AppController],
+  providers: [AppService],
+  exports: [TypeOrmModule],
+})
+export class AppModule {
+  constructor(private readonly configService: ConfigService) {
+    console.log(
+      ` Hi Ziggiii the DB name is ${this.configService.get(
+        'DB_NAME',
+      )} \n and the DB host is ${this.configService.get('DB_HOST')} '`,
+    );
+  }
+  // dbUser = this.configService.get<string>('DATABASE_USER');
+  // // get a custom configuration value
+  // dbHost = this.configService.get<string>('database.host');
+}
