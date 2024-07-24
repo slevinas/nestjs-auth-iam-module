@@ -23,7 +23,7 @@ export class User {
   @PrimaryGeneratedColumn()
   // @Expose()
   // @Field(() => Int)
-  id?: number;
+  id: number;
 
   @Column({ unique: true })
   // @Expose()

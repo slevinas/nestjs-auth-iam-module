@@ -146,7 +146,121 @@ http://localhost:3000/authentication/sign-in
 
 
 -- 3
+// ▪️ Terminal - install dependencies
+npm i @nestjs/jwt @nestjs/config
 
+// ⚙️ .env file
+# JWT
+JWT_SECRET=YOUR_SECRET_KEY_HERE
+JWT_TOKEN_AUDIENCE=localhost:3000
+JWT_TOKEN_ISSUER=localhost:3000
+JWT_ACCESS_TOKEN_TTL=3600
+
+// 📝 jwt.config.ts
+import { registerAs } from '@nestjs/config';
+
+export default registerAs('jwt', () => {
+  return {
+    secret: process.env.JWT_SECRET,
+    audience: process.env.JWT_TOKEN_AUDIENCE,
+    issuer: process.env.JWT_TOKEN_ISSUER,
+    accessTokenTtl: parseInt(process.env.JWT_ACCESS_TOKEN_TTL ?? '3600', 10),
+  };
+});
+
+// 📝 iam.module.ts
+// - additions for JwtModule (registering our jwtConfig)
+imports: [
+  TypeOrmModule.forFeature([User]),
+  JwtModule.registerAsync(jwtConfig.asProvider()), // 👈
+],
+
+// ------
+// 📝 authentication.service.ts - UPDATES
+import {
+  ConflictException,
+  Inject,
+  Injectable,
+  UnauthorizedException,
+} from '@nestjs/common';
+import { ConfigType } from '@nestjs/config';
+import { JwtService } from '@nestjs/jwt';
+import { InjectRepository } from '@nestjs/typeorm';
+import { Repository } from 'typeorm';
+import { User } from '../../users/entities/user.entity';
+import jwtConfig from '../config/jwt.config';
+import { HashingService } from '../hashing/hashing.service';
+import { SignInDto } from './dto/sign-in.dto';
+import { SignUpDto } from './dto/sign-up.dto';
+
+@Injectable()
+export class AuthenticationService {
+  constructor(
+    @InjectRepository(User) private readonly usersRepository: Repository<User>,
+    private readonly hashingService: HashingService,
+    private readonly jwtService: JwtService,
+    @Inject(jwtConfig.KEY) // 👈
+    private readonly jwtConfiguration: ConfigType<typeof jwtConfig>,
+  ) {}
+
+  async signUp(signUpDto: SignUpDto) {
+    try {
+      const user = new User();
+      user.email = signUpDto.email;
+      user.password = await this.hashingService.hash(signUpDto.password);
+
+      await this.usersRepository.save(user);
+    } catch (err) {
+      const pgUniqueViolationErrorCode = '23505';
+      if (err.code === pgUniqueViolationErrorCode) {
+        throw new ConflictException();
+      }
+      throw err;
+    }
+  }
+
+  async signIn(signInDto: SignInDto) {
+    const user = await this.usersRepository.findOneBy({
+      email: signInDto.email,
+    });
+    if (!user) {
+      throw new UnauthorizedException('User does not exists');
+    }
+    const isEqual = await this.hashingService.compare(
+      signInDto.password,
+      user.password,
+    );
+    if (!isEqual) {
+      throw new UnauthorizedException('Password does not match');
+    }
+    const accessToken = await this.jwtService.signAsync( // 👈
+      {
+        sub: user.id,
+        email: user.email,
+      },
+      {
+        audience: this.jwtConfiguration.audience,
+        issuer: this.jwtConfiguration.issuer,
+        secret: this.jwtConfiguration.secret,
+        expiresIn: this.jwtConfiguration.accessTokenTtl,
+      },
+    );
+    return {
+      accessToken,
+    };
+  }
+}
+
+// ------ 🔎
+// EXAMPLE of using Cookies for Auth
+const accessToken = await this.authService.signIn(signInDto);
+response.cookie('accessToken', accessToken, {
+  secure: true,
+  httpOnly: true,
+  sameSite: true,
+});
+
+--- 4
 
 ----------------------------------
 
