@@ -16,6 +16,8 @@ import { AuthType } from '../iam/enums/auth-type.enum';
 import { CoffeesService } from './coffees.service';
 import { CreateCoffeeDto } from './dto/create-coffee.dto';
 import { UpdateCoffeeDto } from './dto/update-coffee.dto';
+import { ActiveUser } from 'src/iam/decorators/active-user.decorator';
+import { ActiveUserData } from 'src/iam/interfaces/active-user-data.interface';
 
 @Controller('coffees')
 // @UseGuards(AccessTokenGuard)
@@ -29,8 +31,10 @@ export class CoffeesController {
   }
 
   @Get()
-  findAll(@Req() request: Request) {
-    console.log('from CoffeeControler findAll was called');
+  findAll(@ActiveUser() user: ActiveUserData) {
+    // console.log('from CoffeeControler findAll was called');
+    // console.log('from CoffeeControler user is');
+    // console.log(user);
     return this.coffeesService.findAll();
   }
 

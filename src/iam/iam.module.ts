@@ -12,10 +12,12 @@ import jwtConfig from 'src/config/jwt.config';
 import { User } from '../users/entities/user.entity';
 import { AccessTokenGuard } from './authentication/guards/access-token/access-token.guard';
 import { AuthenticationGuard } from './authentication/guards/authentication/authentication.guard';
+import { RefreshTokenDto } from './authentication/dto/refresh-token.dto';
+import { RefreshTokenIdsStorage } from './authentication/entities/refreshTokenIdsStorage.entity';
 
 @Module({
   imports: [
-    TypeOrmModule.forFeature([User]),
+    TypeOrmModule.forFeature([User, RefreshTokenIdsStorage]),
     JwtModule.registerAsync(jwtConfig.asProvider()),
     ConfigModule.forFeature(jwtConfig),
   ],

@@ -12,6 +12,10 @@ import {
 // import { Event } from './../events/event.entity';
 // import { Profile } from './profile.entity';
 // import { Field, Int, ObjectType } from '@nestjs/graphql';
+export enum Role {
+  Regular = 'regular',
+  Admin = 'admin',
+}
 
 @Entity()
 // @ObjectType()
@@ -49,6 +53,10 @@ export class User {
   // @Expose()
   // @Field()
   lastName?: string;
+
+  @Optional()
+  @Column({ enum: Role, default: Role.Regular, nullable: true })
+  role?: string;
 
   // @OneToOne(() => Profile)
   // @JoinColumn()

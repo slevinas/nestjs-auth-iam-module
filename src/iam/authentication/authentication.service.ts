@@ -7,17 +7,23 @@ import {
 import { ConfigType } from '@nestjs/config';
 import { JwtService } from '@nestjs/jwt';
 import { InjectRepository } from '@nestjs/typeorm';
+import { randomUUID } from 'crypto';
 import { Repository } from 'typeorm';
 import jwtConfig from '../../config/jwt.config';
 import { User } from '../../users/entities/user.entity';
+import { RefreshTokenDto } from '../authentication/dto/refresh-token.dto';
 import { HashingService } from '../hashing/hashing.service';
+import { ActiveUserData } from '../interfaces/active-user-data.interface';
 import { SignInDto } from './dto/sign-in.dto/sign-in.dto';
 import { SignUpDto } from './dto/sign-up.dto/sign-up.dto';
+import { RefreshTokenIdsStorage } from './entities/refreshTokenIdsStorage.entity';
 
 @Injectable()
 export class AuthenticationService {
   constructor(
     @InjectRepository(User) private readonly usersRepository: Repository<User>,
+    @InjectRepository(RefreshTokenIdsStorage)
+    private readonly refreshTokenIdsStorageRepository: Repository<RefreshTokenIdsStorage>,
     private readonly hashingService: HashingService,
     private readonly jwtService: JwtService,
     @Inject(jwtConfig.KEY)
@@ -57,20 +63,91 @@ export class AuthenticationService {
     if (!isEqual) {
       throw new UnauthorizedException('Password does not match');
     }
-    const accessToken = await this.jwtService.signAsync(
+
+    return await this.generateTokens(user);
+  }
+
+  async generateTokens(user: User) {
+    const refreshTokenId = randomUUID();
+    const [accessToken, refreshToken] = await Promise.all([
+      this.signToken<Partial<ActiveUserData>>(
+        user.id,
+        this.jwtConfiguration.accessTokenTtl,
+        { email: user.email },
+      ),
+      this.signToken(user.id, this.jwtConfiguration.refreshTokenTtl, {
+        refreshTokenId,
+      }),
+    ]);
+    this.insertRefreshTokenId(user.id, refreshTokenId);
+
+    return {
+      accessToken,
+      refreshToken,
+    };
+  }
+
+  async refreshTokens(refreshTokenDto: RefreshTokenDto) {
+    try {
+      const { sub , refreshTokenId } = await this.jwtService.verifyAsync<
+        Pick<ActiveUserData, 'sub'> & { refreshTokenId: string }
+      >(refreshTokenDto.refreshToken, {
+        secret: this.jwtConfiguration.secret,
+        audience: this.jwtConfiguration.audience,
+        issuer: this.jwtConfiguration.issuer,
+      });
+      const user = await this.usersRepository.findOneByOrFail({
+        id: sub,
+      });
+      const isValid = await this.validateRefreshToken(sub, refreshTokenId);
+      if (isValid){
+        await this.invalidateRefreshToken(user.id);
+      } else {
+        throw new Error('Invalid refresh token');
+      }
+
+      return this.generateTokens(user);
+    } catch (err) {
+      throw new UnauthorizedException();
+    }
+  }
+  async insertRefreshTokenId(userId, refreshTokenId) {
+    const refreshTokenIdsStorageE = new RefreshTokenIdsStorage();
+    refreshTokenIdsStorageE.id = userId;
+    refreshTokenIdsStorageE.refreshTokenId = refreshTokenId;
+    await this.refreshTokenIdsStorageRepository.save(refreshTokenIdsStorageE);
+  }
+  async validateRefreshToken(userId, refreshTokenId) {
+    const refreshTokenIdFromDb =
+      await this.refreshTokenIdsStorageRepository.findOneByOrFail({
+        id: userId,
+      });
+    if (!refreshTokenIdFromDb) {
+      return false;
+    } else if (refreshTokenIdFromDb.refreshTokenId !== refreshTokenId) {
+      return false;
+    }
+
+    return true;
+  }
+  async invalidateRefreshToken(userId) {
+    await this.refreshTokenIdsStorageRepository.delete({
+      id: userId,
+    });
+  }
+
+  private async signToken<T>(userId: number, expiresIn: number, payload?: T) {
+    return await this.jwtService.signAsync(
       {
-        sub: user.id,
-        email: user.email,
+        sub: userId,
+        ...payload,
       },
       {
         audience: this.jwtConfiguration.audience,
         issuer: this.jwtConfiguration.issuer,
         secret: this.jwtConfiguration.secret,
-        expiresIn: this.jwtConfiguration.accessTokenTtl,
+        expiresIn,
       },
     );
-    return {
-      accessToken,
-    };
   }
 }

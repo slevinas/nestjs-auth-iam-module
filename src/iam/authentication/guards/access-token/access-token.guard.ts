@@ -34,7 +34,7 @@ export class AccessTokenGuard implements CanActivate {
         this.jwtConfiguration,
       );
       request[REQUEST_USER_KEY] = payload;
-      console.log('from access-token.guard.ts');
+      console.log('from access-token.guard.ts the payload is', payload);
       // console.log(payload); // Decoded JWT payload will be logged
     } catch (e) {
       throw new UnauthorizedException(e.message);
