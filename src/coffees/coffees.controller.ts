@@ -1,9 +1,25 @@
-import { Controller, Get, Post, Body, Patch, Param, Delete } from '@nestjs/common';
+import {
+  Body,
+  Controller,
+  Delete,
+  Get,
+  Param,
+  Patch,
+  Post,
+  Req,
+  UseGuards,
+} from '@nestjs/common';
+import { Request } from 'express';
+import { AccessTokenGuard } from '../iam/authentication/guards/access-token/access-token.guard';
+import { Auth } from '../iam/decorators/auth.decorator';
+import { AuthType } from '../iam/enums/auth-type.enum';
 import { CoffeesService } from './coffees.service';
 import { CreateCoffeeDto } from './dto/create-coffee.dto';
 import { UpdateCoffeeDto } from './dto/update-coffee.dto';
 
 @Controller('coffees')
+// @UseGuards(AccessTokenGuard)
+// @Auth(AuthType.Bearer, AuthType.ApiKey)
 export class CoffeesController {
   constructor(private readonly coffeesService: CoffeesService) {}
 
@@ -13,7 +29,8 @@ export class CoffeesController {
   }
 
   @Get()
-  findAll() {
+  findAll(@Req() request: Request) {
+    console.log('from CoffeeControler findAll was called');
     return this.coffeesService.findAll();
   }
 

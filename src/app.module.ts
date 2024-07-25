@@ -7,9 +7,11 @@ import ormConfigProd from './config/orm.config.prod';
 import { AppController } from './app.controller';
 import { AppService } from './app.service';
 import { UsersModule } from './users/users.module';
-import { AuthModule } from './auth/auth.module';
+// import { AuthModule } from './auth/auth.module';
 import { CoffeesModule } from './coffees/coffees.module';
 import { IamModule } from './iam/iam.module';
+import { JwtModule } from '@nestjs/jwt';
+import jwtConfig from './config/jwt.config';
 
 const envFilePath = `${process.env.NODE_ENV ?? ''}.env`;
 const typeormConfigFilePath =
@@ -34,9 +36,11 @@ console.log(process.env.DB_PASSWORD, process.env.DB_USER);
         process.env.NODE_ENV !== 'production' ? ormConfig : ormConfigProd,
     }),
     UsersModule,
-    AuthModule,
+    // AuthModule,
     CoffeesModule,
     IamModule,
+    JwtModule.registerAsync(jwtConfig.asProvider()),
+    ConfigModule.forFeature(jwtConfig),
   ],
   controllers: [AppController],
   providers: [AppService],

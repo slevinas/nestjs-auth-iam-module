@@ -262,6 +262,73 @@ response.cookie('accessToken', accessToken, {
 
 --- 4
 
+// ▪️ Terminal - create AccessTokenGuard
+nest g guard iam/authentication/guards/access-token
+
+// 📝 access-token.guard.ts
+import {
+  CanActivate,
+  ExecutionContext,
+  Inject,
+  Injectable,
+  UnauthorizedException,
+} from '@nestjs/common';
+import { ConfigType } from '@nestjs/config';
+import { JwtService } from '@nestjs/jwt';
+import { Observable } from 'rxjs';
+import jwtConfig from '../../config/jwt.config';
+import { Request } from 'express';
+import { REQUEST_USER_KEY } from '../../iam.constants';
+
+@Injectable()
+export class AccessTokenGuard implements CanActivate {
+  constructor(
+    private readonly jwtService: JwtService,
+    @Inject(jwtConfig.KEY)
+    private readonly jwtConfiguration: ConfigType<typeof jwtConfig>,
+  ) {}
+
+  async canActivate(context: ExecutionContext): Promise<boolean> {
+    // 💡 NOTE: For GraphQL applications, you’d have to use the 
+    // wrapper GqlExecutionContext here instead.
+    const request = context.switchToHttp().getRequest();
+    const token = this.extractTokenFromHeader(request);
+    if (!token) {
+      throw new UnauthorizedException();
+    }
+    try {
+      const payload = await this.jwtService.verifyAsync(
+        token,
+        this.jwtConfiguration,
+      );
+      request[REQUEST_USER_KEY] = payload;
+      console.log(payload);
+    } catch {
+      throw new UnauthorizedException();
+    }
+    return true;
+  }
+
+  private extractTokenFromHeader(request: Request): string | undefined {
+    const [_, token] = request.headers.authorization?.split(' ') ?? [];
+    return token;
+  }
+}
+
+// -----
+// 📝 iam.constants.ts - NEW FILE 
+export const REQUEST_USER_KEY = 'user';
+
+// -----
+// 📝 iam.module.ts - add AccessTokenGuard globally via APP_GUARD
+{
+  provide: APP_GUARD,
+  useClass: AccessTokenGuard,
+},
+
+
+------- 5 ----------
+
 ----------------------------------
 
 // Create new application (name it whatever you prefer!)
