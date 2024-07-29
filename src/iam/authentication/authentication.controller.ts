@@ -8,15 +8,19 @@ import {
   Req,
   Res,
 } from '@nestjs/common';
-import { InjectDataSource } from '@nestjs/typeorm';
+import { InjectDataSource, InjectRepository } from '@nestjs/typeorm';
+import { randomUUID } from 'crypto';
 import { Response } from 'express';
+import { ApiKey } from 'src/users/api-keys/entities/api-key.entity/api-key.entity';
+import { getRepository, Repository } from 'typeorm';
+
 import { Auth } from '../decorators/auth.decorator';
 import { AuthType } from '../enums/auth-type.enum';
+import { ApiKeysService } from './api-keys.service';
 import { AuthenticationService } from './authentication.service';
 import { RefreshTokenDto } from './dto/refresh-token.dto';
 import { SignInDto } from './dto/sign-in.dto/sign-in.dto';
 import { SignUpDto } from './dto/sign-up.dto/sign-up.dto';
-import { User } from '../../users/entities/user.entity';
 
 @Auth(AuthType.None)
 @Controller('authentication')
@@ -24,7 +28,32 @@ export class AuthenticationController {
   constructor(
     private readonly authService: AuthenticationService,
     @InjectDataSource() private readonly dataSource: any,
+    @InjectRepository(ApiKey)
+    private readonly apiKeyRepository: Repository<ApiKey>,
+    private readonly apiKeysService: ApiKeysService,
   ) {}
+
+  @Get('create-api-key')
+  async createApiKey() {
+    const apiKeyAndHash = await this.apiKeysService.createAndHash(5);
+    console.log('apiKeyAndHash', apiKeyAndHash);
+    // const existingUser = await this.dataSource
+    //   .createQueryBuilder()
+    //   .select('*')
+    //   .from('user', 'u')
+    //   .where('u.id = :id', { id: 5 })
+    //   .execute();
+
+    // const apiKey = new ApiKey();
+    // apiKey.key = apiKeyAndHash.hashedKey;
+    // apiKey.uuid = '5';
+    // apiKey.user = existingUser;
+
+    // Save the ApiKey instance to the database
+    // await this.apiKeyRepository.save(apiKey);
+
+    return ''
+  } // this is a test endpoint to create an API key
 
   @Post('sign-up')
   async signUp(@Body() signUpDto: SignUpDto) {
@@ -70,7 +99,7 @@ export class AuthenticationController {
     const users = await this.dataSource
       .createQueryBuilder()
       .select(`*`)
-      .from(User, 'u')
+      .from(ApiKey, 'u')
       .execute();
     // .where('n.user = :user', { user: user })
     // .orderBy('n.id', 'ASC')

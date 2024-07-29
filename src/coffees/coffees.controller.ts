@@ -19,9 +19,10 @@ import { UpdateCoffeeDto } from './dto/update-coffee.dto';
 import { ActiveUser } from 'src/iam/decorators/active-user.decorator';
 import { ActiveUserData } from 'src/iam/interfaces/active-user-data.interface';
 
+
+
+@Auth(AuthType.Bearer)
 @Controller('coffees')
-// @UseGuards(AccessTokenGuard)
-// @Auth(AuthType.Bearer, AuthType.ApiKey)
 export class CoffeesController {
   constructor(private readonly coffeesService: CoffeesService) {}
 
@@ -32,9 +33,9 @@ export class CoffeesController {
 
   @Get()
   findAll(@ActiveUser() user: ActiveUserData) {
-    // console.log('from CoffeeControler findAll was called');
-    // console.log('from CoffeeControler user is');
-    // console.log(user);
+    console.log('from CoffeeControler findAll was called');
+    console.log('from CoffeeControler user is');
+    console.log(user);
     return this.coffeesService.findAll();
   }
 

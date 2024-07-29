@@ -89,7 +89,7 @@ export class AuthenticationService {
 
   async refreshTokens(refreshTokenDto: RefreshTokenDto) {
     try {
-      const { sub , refreshTokenId } = await this.jwtService.verifyAsync<
+      const { sub, refreshTokenId } = await this.jwtService.verifyAsync<
         Pick<ActiveUserData, 'sub'> & { refreshTokenId: string }
       >(refreshTokenDto.refreshToken, {
         secret: this.jwtConfiguration.secret,
@@ -100,7 +100,7 @@ export class AuthenticationService {
         id: sub,
       });
       const isValid = await this.validateRefreshToken(sub, refreshTokenId);
-      if (isValid){
+      if (isValid) {
         await this.invalidateRefreshToken(user.id);
       } else {
         throw new Error('Invalid refresh token');

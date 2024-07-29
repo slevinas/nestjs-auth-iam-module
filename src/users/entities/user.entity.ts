@@ -1,13 +1,15 @@
-import { Expose } from 'class-transformer';
 import { Optional } from '@nestjs/common';
+import { Expose } from 'class-transformer';
 import {
   Column,
   Entity,
   JoinColumn,
+  JoinTable,
   OneToMany,
   OneToOne,
   PrimaryGeneratedColumn,
 } from 'typeorm';
+import { ApiKey } from '../api-keys/entities/api-key.entity/api-key.entity';
 // import { Attendee } from './../events/attendee.entity';
 // import { Event } from './../events/event.entity';
 // import { Profile } from './profile.entity';
@@ -58,15 +60,11 @@ export class User {
   @Column({ enum: Role, default: Role.Regular, nullable: true })
   role?: string;
 
-  // @OneToOne(() => Profile)
-  // @JoinColumn()
-  // @Expose()
-  // profile: Profile;
+  // @Optional()
+  // @Column({ enum: Permission, default: [],type 'json'})
+  // permissions?: PermissionType[];
 
-  // @OneToMany(() => Event, (event) => event.organizer)
-  // @Expose()
-  // organized: Event[];
-
-  // @OneToMany(() => Attendee, (attendee) => attendee.user)
-  // attended: Attendee[];
+  @JoinTable()
+  @OneToMany((type) => ApiKey, (apiKey) => apiKey.user)
+  apiKeys: ApiKey[]; // 👈 relationship with ApiKey Entity
 }
