@@ -39,3 +39,4 @@ README.md
 # Environment
 .env*
 *.env.*
+dev.env
