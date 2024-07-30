@@ -9,14 +9,16 @@ import { ConfigModule } from '@nestjs/config';
 import { APP_GUARD } from '@nestjs/core';
 import { JwtModule } from '@nestjs/jwt';
 import jwtConfig from 'src/config/jwt.config';
+import { ApiKey } from '../users/api-keys/entities/api-key.entity/api-key.entity';
 import { User } from '../users/entities/user.entity';
-import { AccessTokenGuard } from './authentication/guards/access-token/access-token.guard';
-import { AuthenticationGuard } from './authentication/guards/authentication/authentication.guard';
+import { ApiKeysService } from './authentication/api-keys.service';
 import { RefreshTokenDto } from './authentication/dto/refresh-token.dto';
 import { RefreshTokenIdsStorage } from './authentication/entities/refreshTokenIdsStorage.entity';
-import { ApiKeysService } from './authentication/api-keys.service';
-import { ApiKey } from '../users/api-keys/entities/api-key.entity/api-key.entity';
+import { AccessTokenGuard } from './authentication/guards/access-token/access-token.guard';
 import { ApiKeyGuard } from './authentication/guards/api-key/api-key.guard';
+import { AuthenticationGuard } from './authentication/guards/authentication/authentication.guard';
+import { Roles } from './authorization/decorators/roles.decorator';
+import { RolesGuard } from './authorization/guards/roles/roles.guard';
 
 @Module({
   imports: [
@@ -33,6 +35,11 @@ import { ApiKeyGuard } from './authentication/guards/api-key/api-key.guard';
       provide: APP_GUARD,
       useClass: AuthenticationGuard,
     },
+    {
+      provide: APP_GUARD,
+      useClass: RolesGuard,
+    },
+
     AccessTokenGuard,
     ApiKeyGuard,
     AuthenticationService,

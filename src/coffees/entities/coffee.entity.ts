@@ -1,4 +1,11 @@
-import { Column, Entity, PrimaryGeneratedColumn } from 'typeorm';
+import { Flavor } from 'src/coffees/entities/flavor.entity/flavor.entity';
+import {
+  Column,
+  Entity,
+  JoinTable,
+  ManyToMany,
+  PrimaryGeneratedColumn,
+} from 'typeorm';
 
 @Entity()
 export class Coffee {
@@ -11,6 +18,11 @@ export class Coffee {
   @Column()
   brand?: string;
 
-  @Column('json', { nullable: true })
-  flavors?: string[];
+  @JoinTable() // Join the 2 tables - only the OWNER-side does this
+  @ManyToMany(
+    (type) => Flavor,
+    (flavor) => flavor.coffees, // what is "coffee" within the Flavor Entity
+    { cascade: true }, // with cascade, if we save a coffee, it will save the flavors as well.
+  )
+  flavors: string[];
 }
