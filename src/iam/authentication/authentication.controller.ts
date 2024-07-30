@@ -37,13 +37,14 @@ export class AuthenticationController {
   async createApiKey() {
     const apiKeyAndHash = await this.apiKeysService.createAndHash(5);
     console.log('apiKeyAndHash', apiKeyAndHash);
-    // const existingUser = await this.dataSource
-    //   .createQueryBuilder()
-    //   .select('*')
-    //   .from('user', 'u')
-    //   .where('u.id = :id', { id: 5 })
-    //   .execute();
+    /*
+    apiKey 5 28019a18-5e4d-44e6-b019-119e283e894d
+    apiKeyAndHash {
+      apiKey: 'NSAyODAxOWExOC01ZTRkLTQ0ZTYtYjAxOS0xMTllMjgzZTg5NGQ=',
+      hashedKey: '$2b$10$RIfFQejmCzFfVO4YmZHcpOOlNYaU0gdeAjlN4V0UwaKzs4x.0DigK'
+    }
 
+*/
     // const apiKey = new ApiKey();
     // apiKey.key = apiKeyAndHash.hashedKey;
     // apiKey.uuid = '5';
@@ -52,7 +53,11 @@ export class AuthenticationController {
     // Save the ApiKey instance to the database
     // await this.apiKeyRepository.save(apiKey);
 
-    return ''
+    return await this.apiKeyRepository.save({
+      key: apiKeyAndHash.hashedKey,
+      uuid: randomUUID(),
+      user: { id: 8 },
+      });
   } // this is a test endpoint to create an API key
 
   @Post('sign-up')

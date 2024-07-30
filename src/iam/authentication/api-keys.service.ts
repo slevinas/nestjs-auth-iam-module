@@ -19,7 +19,14 @@ export class ApiKeysService {
   }
 
   async validate(apiKey: string, hashedKey: string): Promise<boolean> {
-    return this.hashingService.compare(apiKey, hashedKey);
+    console.log(
+      'from api-keys.service.validate was called with:',
+      apiKey,
+      hashedKey,
+    );
+    const isValid = await this.hashingService.compare(apiKey, hashedKey);
+    // console.log('from api-keys.service.ts the isValid is', isValid);
+    return isValid;
   }
 
   extractIdFromApiKey(apiKey: string): string {

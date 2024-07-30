@@ -24,6 +24,7 @@ export class ApiKeyGuard implements CanActivate {
   async canActivate(context: ExecutionContext): Promise<boolean> {
     const request = context.switchToHttp().getRequest();
     const apiKey = this.extractKeyFromHeader(request);
+    // console.log('from api-key.guard.ts the apiKey is', apiKey);
     if (!apiKey) {
       throw new UnauthorizedException();
     }
@@ -33,6 +34,7 @@ export class ApiKeyGuard implements CanActivate {
         where: { uuid: apiKeyEntityId },
         relations: { user: true },
       });
+      console.log('from api-key.guard.ts the apiKeyEntity is', apiKeyEntity);
       await this.apiKeysService.validate(apiKey, apiKeyEntity.key);
       request[REQUEST_USER_KEY] = {
         sub: apiKeyEntity.user.id,
@@ -46,8 +48,14 @@ export class ApiKeyGuard implements CanActivate {
   }
 
   private extractKeyFromHeader(request: Request): string | undefined {
+    console.log('extractKeyFromHeader  ');
+    console.log(
+      ' the request.headers.authorization is',
+      request.headers.authorization?.split(' '),
+    );
+
+    // console.log(request.headers.authorization);
     const [type, key] = request.headers.authorization?.split(' ') ?? [];
-    console.log('from api-key.guard.ts the type is', type, 'key is', key);
     // ⚠️ note that we're only interested in the ApiKey type
     // so if the type is not ApiKey, we return undefined
     return type === 'ApiKey' ? key : undefined;
