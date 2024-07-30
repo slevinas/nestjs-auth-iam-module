@@ -24,5 +24,5 @@ export class Coffee {
     (flavor) => flavor.coffees, // what is "coffee" within the Flavor Entity
     { cascade: true }, // with cascade, if we save a coffee, it will save the flavors as well.
   )
-  flavors: string[];
+  flavors: Flavor[];
 }

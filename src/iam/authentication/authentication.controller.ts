@@ -14,6 +14,7 @@ import { Response } from 'express';
 import { ApiKey } from 'src/users/api-keys/entities/api-key.entity/api-key.entity';
 import { getRepository, Repository } from 'typeorm';
 
+import { User } from 'src/users/entities/user.entity';
 import { Auth } from '../decorators/auth.decorator';
 import { AuthType } from '../enums/auth-type.enum';
 import { ApiKeysService } from './api-keys.service';
@@ -36,7 +37,7 @@ export class AuthenticationController {
   @Get('create-api-key')
   async createApiKey() {
     const apiKeyAndHash = await this.apiKeysService.createAndHash(5);
-    console.log('apiKeyAndHash', apiKeyAndHash);
+
     /*
     apiKey 5 28019a18-5e4d-44e6-b019-119e283e894d
     apiKeyAndHash {
@@ -57,12 +58,11 @@ export class AuthenticationController {
       key: apiKeyAndHash.hashedKey,
       uuid: randomUUID(),
       user: { id: 8 },
-      });
+    });
   } // this is a test endpoint to create an API key
 
   @Post('sign-up')
   async signUp(@Body() signUpDto: SignUpDto) {
-    console.log('signUpDto', signUpDto);
     return this.authService.signUp(signUpDto);
   }
 
@@ -73,8 +73,6 @@ export class AuthenticationController {
     @Res({ passthrough: true }) response: Response,
     @Body() signInDto: SignInDto,
   ) {
-    // console.log('from signIn controller the request is', request);
-    // return this.authService.signIn(signInDto);
     const accessToken = await this.authService.signIn(signInDto);
     // Set the cookie with the access token
     // response.cookie('accessToken', accessToken, {
@@ -90,21 +88,14 @@ export class AuthenticationController {
     return this.authService.refreshTokens(refreshTokenDto);
   }
 
-  // @HttpCode(HttpStatus.OK) // by default @Post does 201, we wanted 200 - hence using @HttpCode(HttpStatus.OK)
-  // @Post('sign-in')
-  // async signIn(@Req() request: Request, @Body() signInDto: SignInDto) {
-  //   // return this.authService.signIn(signInDto);
-  //   // const userObject = request.user;
-  //   // console.log('from signIn controller the request is', request);
-  //   const accessToken = await this.authService.signIn(signInDto);
-  //   return accessToken;
-  // }
   @Get('users')
   async getUsers() {
+    // testing the API key with the user repository
     const users = await this.dataSource
       .createQueryBuilder()
       .select(`*`)
-      .from(ApiKey, 'u')
+      .from(User, 'u')
+      .leftJoin(ApiKey, 'ak', 'ak.userId = u.id')
       .execute();
     // .where('n.user = :user', { user: user })
     // .orderBy('n.id', 'ASC')
