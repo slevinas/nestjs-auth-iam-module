@@ -40,3 +40,4 @@ README.md
 .env*
 *.env.*
 dev.env
+dev.env
