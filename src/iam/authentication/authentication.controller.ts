@@ -20,8 +20,8 @@ import { AuthType } from '../enums/auth-type.enum';
 import { ApiKeysService } from './api-keys.service';
 import { AuthenticationService } from './authentication.service';
 import { RefreshTokenDto } from './dto/refresh-token.dto';
-import { SignInDto } from './dto/sign-in.dto/sign-in.dto';
-import { SignUpDto } from './dto/sign-up.dto/sign-up.dto';
+import { SignInDto } from './dto/sign-in.dto';
+import { SignUpDto } from './dto/sign-up.dto';
 
 @Auth(AuthType.None)
 @Controller('authentication')

@@ -6,6 +6,7 @@ import jwtConfig from './config/jwt.config';
 
 async function bootstrap() {
   const app = await NestFactory.create(AppModule);
+  app.enableCors();
 
   // This will enable the global validation pipe for the DTOs
   app.useGlobalPipes(new ValidationPipe());

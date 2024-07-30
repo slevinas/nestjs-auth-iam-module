@@ -12,10 +12,10 @@ import { Repository } from 'typeorm';
 import jwtConfig from '../../config/jwt.config';
 import { User } from '../../users/entities/user.entity';
 import { RefreshTokenDto } from '../authentication/dto/refresh-token.dto';
+import { SignUpDto } from '../authentication/dto/sign-up.dto';
 import { HashingService } from '../hashing/hashing.service';
 import { ActiveUserData } from '../interfaces/active-user-data.interface';
-import { SignInDto } from './dto/sign-in.dto/sign-in.dto';
-import { SignUpDto } from './dto/sign-up.dto/sign-up.dto';
+import { SignInDto } from './dto/sign-in.dto';
 import { RefreshTokenIdsStorage } from './entities/refreshTokenIdsStorage.entity';
 
 @Injectable()
@@ -33,10 +33,8 @@ export class AuthenticationService {
   async signUp(signUpDto: SignUpDto) {
     console.log('from AuthenticationService signUp', signUpDto);
     try {
-      const user = new User();
-      user.username = signUpDto.username;
+      const user = new User(signUpDto);
 
-      user.email = signUpDto.email;
       user.password = await this.hashingService.hash(signUpDto.password);
 
       await this.usersRepository.save(user);

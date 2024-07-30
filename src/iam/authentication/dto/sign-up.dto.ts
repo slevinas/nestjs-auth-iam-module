@@ -1,6 +1,6 @@
 import { PartialType } from '@nestjs/mapped-types';
 import { IsEmail, Min, MinLength } from 'class-validator';
-import { User } from '../../../../users/entities/user.entity';
+import { User } from '../../../users/entities/user.entity';
 
 export class SignUpDto extends PartialType(User) {
   constructor(partial?: Partial<SignUpDto>) {

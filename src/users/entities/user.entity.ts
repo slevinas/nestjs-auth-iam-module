@@ -39,13 +39,17 @@ export class User {
   // @Field(() => Int)
   id: number;
 
-  @Column({ unique: true })
+  @Optional()
+  @Column({ unique: true, nullable: true })
   // @Expose()
   // @Field()
-  username: string;
+  username?: string;
 
-  @Column()
+  @Column({ nullable: true })
   password: string;
+
+  @Column({ nullable: true })
+  googleId: string;
 
   @Column({ unique: true })
   // @Expose()
