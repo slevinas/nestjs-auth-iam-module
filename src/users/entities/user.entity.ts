@@ -56,6 +56,12 @@ export class User {
   // @Field()
   email?: string;
 
+  @Column({ default: false })
+  isTfaEnabled: boolean; //
+
+  @Column({ nullable: true })
+  tfaSecret: string;
+
   @Optional()
   @Column({ nullable: true })
   // @Expose()
@@ -81,5 +87,5 @@ export class User {
 
   @JoinTable()
   @OneToMany((type) => ApiKey, (apiKey) => apiKey.user)
-  apiKeys: ApiKey[]; // 👈 relationship with ApiKey Entity
+  apiKeys: ApiKey[]; // relationship with ApiKey Entity
 }

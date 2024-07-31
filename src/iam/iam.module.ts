@@ -1,4 +1,4 @@
-import { Module } from '@nestjs/common';
+import { MiddlewareConsumer, Module, NestModule } from '@nestjs/common';
 import { TypeOrmModule } from '@nestjs/typeorm';
 import { AuthenticationController } from './authentication/authentication.controller';
 import { AuthenticationService } from './authentication/authentication.service';
@@ -8,6 +8,8 @@ import { HashingService } from './hashing/hashing.service';
 import { ConfigModule } from '@nestjs/config';
 import { APP_GUARD } from '@nestjs/core';
 import { JwtModule } from '@nestjs/jwt';
+import * as session from 'express-session';
+import * as passport from 'passport';
 import jwtConfig from 'src/config/jwt.config';
 import { ApiKey } from '../users/api-keys/entities/api-key.entity/api-key.entity';
 import { User } from '../users/entities/user.entity';
@@ -17,10 +19,13 @@ import { RefreshTokenIdsStorage } from './authentication/entities/refreshTokenId
 import { AccessTokenGuard } from './authentication/guards/access-token/access-token.guard';
 import { ApiKeyGuard } from './authentication/guards/api-key/api-key.guard';
 import { AuthenticationGuard } from './authentication/guards/authentication/authentication.guard';
+import { OtpAuthenticationService } from './authentication/otp-authentication.service';
+import { SessionAuthenticationController } from './authentication/session-authentication.controller';
+import { SessionAuthenticationService } from './authentication/session-authentication.service';
+import { GoogleAuthenticationController } from './authentication/social/google-authentication.controller';
+import { GoogleAuthenticationService } from './authentication/social/google-authentication.service';
 import { Roles } from './authorization/decorators/roles.decorator';
 import { RolesGuard } from './authorization/guards/roles/roles.guard';
-import { GoogleAuthenticationService } from './authentication/social/google-authentication.service';
-import { GoogleAuthenticationController } from './authentication/social/google-authentication.controller';
 
 @Module({
   imports: [
@@ -47,7 +52,31 @@ import { GoogleAuthenticationController } from './authentication/social/google-a
     AuthenticationService,
     ApiKeysService,
     GoogleAuthenticationService,
+    OtpAuthenticationService,
+    SessionAuthenticationService,
   ],
-  controllers: [AuthenticationController, GoogleAuthenticationController],
+  controllers: [
+    AuthenticationController,
+    GoogleAuthenticationController,
+    SessionAuthenticationController,
+  ],
 })
-export class IamModule {}
+export class IamModule implements NestModule {
+  configure(consumer: MiddlewareConsumer) {
+    consumer
+      .apply(
+        session({
+          secret: process.env.SESSION_SECRET,
+          resave: false,
+          saveUninitialized: false,
+          cookie: {
+            sameSite: true,
+            httpOnly: true,
+          },
+        }),
+        passport.initialize(),
+        passport.session(),
+      )
+      .forRoutes('*');
+  }
+}

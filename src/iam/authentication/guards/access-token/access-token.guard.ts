@@ -27,7 +27,9 @@ export class AccessTokenGuard implements CanActivate {
 
     const token = this.extractTokenFromHeader(request);
     if (!token) {
-      throw new UnauthorizedException();
+      throw new UnauthorizedException(
+        'no token found in the request.headers.authorization',
+      );
     }
     try {
       const payload = await this.jwtService.verifyAsync(

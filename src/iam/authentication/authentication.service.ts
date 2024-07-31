@@ -12,11 +12,12 @@ import { Repository } from 'typeorm';
 import jwtConfig from '../../config/jwt.config';
 import { User } from '../../users/entities/user.entity';
 import { RefreshTokenDto } from '../authentication/dto/refresh-token.dto';
-import { SignUpDto } from '../authentication/dto/sign-up.dto';
 import { HashingService } from '../hashing/hashing.service';
 import { ActiveUserData } from '../interfaces/active-user-data.interface';
 import { SignInDto } from './dto/sign-in.dto';
+import { SignUpDto } from '../authentication/dto/sign-up.dto';
 import { RefreshTokenIdsStorage } from './entities/refreshTokenIdsStorage.entity';
+import { OtpAuthenticationService } from './otp-authentication.service';
 
 @Injectable()
 export class AuthenticationService {
@@ -28,6 +29,7 @@ export class AuthenticationService {
     private readonly jwtService: JwtService,
     @Inject(jwtConfig.KEY)
     private readonly jwtConfiguration: ConfigType<typeof jwtConfig>,
+    private readonly otpAuthService: OtpAuthenticationService,
   ) {}
 
   async signUp(signUpDto: SignUpDto) {
@@ -48,6 +50,7 @@ export class AuthenticationService {
   }
 
   async signIn(signInDto: SignInDto) {
+    console.log('from AuthenticationService signInDto is:', signInDto);
     const user = await this.usersRepository.findOneBy({
       email: signInDto.email,
     });
@@ -61,6 +64,16 @@ export class AuthenticationService {
     if (!isEqual) {
       throw new UnauthorizedException('Password does not match');
     }
+    if (user.isTfaEnabled) {
+      const isValid = this.otpAuthService.verifyCode(
+        signInDto.tfaCode,
+        user.tfaSecret,
+      );
+      if (!isValid) {
+        throw new UnauthorizedException('Invalid 2FA code');
+      }
+    }
+
 
     return await this.generateTokens(user);
   }

@@ -3,6 +3,7 @@ import { AppModule } from './app.module';
 import { ValidationPipe } from '@nestjs/common';
 import { AccessTokenGuard } from './iam/authentication/guards/access-token/access-token.guard';
 import jwtConfig from './config/jwt.config';
+import { WrapResponseInterceptor } from './common/interceptors/wrap-response/wrap-response.interceptor';
 
 async function bootstrap() {
   const app = await NestFactory.create(AppModule);
@@ -10,7 +11,8 @@ async function bootstrap() {
 
   // This will enable the global validation pipe for the DTOs
   app.useGlobalPipes(new ValidationPipe());
-  //
+  //Binding Interceptors
+  app.useGlobalInterceptors(new WrapResponseInterceptor());
   await app.listen(3535);
 }
 bootstrap();
