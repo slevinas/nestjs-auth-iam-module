@@ -11,6 +11,7 @@ import { UsersModule } from './users/users.module';
 import { CoffeesModule } from './coffees/coffees.module';
 import { IamModule } from './iam/iam.module';
 import { JwtModule } from '@nestjs/jwt';
+import { PetsModule } from './pets/pets.module';
 import jwtConfig from './config/jwt.config';
 
 const envFilePath = `${process.env.NODE_ENV ?? ''}.env`;
@@ -41,6 +42,7 @@ console.log(process.env.DB_PASSWORD, process.env.DB_USER);
     IamModule,
     JwtModule.registerAsync(jwtConfig.asProvider()),
     ConfigModule.forFeature(jwtConfig),
+    PetsModule,
   ],
   controllers: [AppController],
   providers: [AppService],
