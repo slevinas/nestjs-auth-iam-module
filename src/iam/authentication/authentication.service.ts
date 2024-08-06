@@ -74,7 +74,6 @@ export class AuthenticationService {
       }
     }
 
-
     return await this.generateTokens(user);
   }
 

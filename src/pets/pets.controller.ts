@@ -1,20 +1,21 @@
+import { HttpService } from '@nestjs/axios';
 import {
-  Controller,
-  Get,
-  Post,
   Body,
-  Patch,
-  Param,
+  Controller,
   Delete,
+  Get,
+  Param,
+  Patch,
+  Post,
 } from '@nestjs/common';
-import { PetsService } from './pets.service';
-import { CreatePetDto } from './dto/create-pet.dto';
-import { UpdatePetDto } from './dto/update-pet.dto';
+import * as fs from 'fs';
+import { firstValueFrom } from 'rxjs';
 import { Auth } from 'src/iam/decorators/auth.decorator';
 import { AuthType } from 'src/iam/enums/auth-type.enum';
-import { HttpService } from '@nestjs/axios';
-import { firstValueFrom } from 'rxjs';
-
+// import staticPets from 'src/pets/pets-data/mock.js';
+import { CreatePetDto } from './dto/create-pet.dto';
+import { UpdatePetDto } from './dto/update-pet.dto';
+import { PetsService } from './pets.service';
 
 @Auth(AuthType.None)
 @Controller('pets')
@@ -29,25 +30,62 @@ export class PetsController {
     return this.petsService.create(createPetDto);
   }
 
-
   @Get('call-picsum-api')
   async ccallPicsumApi() {
     console.log('from pets.controller.ccallPricsumApi()');
 
-    try {
-      const response = await firstValueFrom(
-        this.httpService.get('https://picsum.photos/v2/list?page=1&limit=10')
-      );
+    const responseFromService = await this.petsService.callPicsumApi();
 
-      const data = response.data;
-      // Break circular reference if any
-      const sanitizedData = JSON.parse(JSON.stringify(data));
-      console.log('from pets.controller.ccallPricsumApi()-sanitizedData', sanitizedData);
-      return sanitizedData;
-    } catch (error) {
-      console.error('Error calling Picsum API', error);
-      throw error;
-    }
+    return responseFromService;
+  }
+
+  @Get('api-static-data')
+  async getApiStaticData() {
+    console.log('from pets.controller.getApiStaticData()');
+    // try {
+    //   const petsStrArray = fs.readFileSync(
+    //     'src/pets/pets-data/mock.js',
+    //     'utf8',
+    //   );
+    //   if (petsStrArray) {
+    //     return petsStrArray;
+    //   } else {
+    //     throw new Error('No data found');
+    //   }
+    // } catch (error) {
+    //   console.error('Error calling Picsum API', error);
+    // }
+    const staticPets = [
+      {
+        name: 'Calvin',
+        type: 'Dog',
+        imageUrl: 'https://placedog.net/336/360',
+        description: 'Great at giving warm hugs.',
+      },
+      {
+        name: 'Carly',
+        type: 'Dog',
+        imageUrl: 'https://placedog.net/360/336',
+        description: 'Has a little nice tail',
+      },
+      {
+        name: 'Muffy',
+        type: 'Cat',
+        imageUrl: 'https://placekitten.com/336/360',
+        description: 'Loves drinking milk',
+      },
+      {
+        name: 'Beth',
+        type: 'Cat',
+        imageUrl: 'https://placekitten.com/360/336',
+        description: 'Very playful',
+      },
+    ];
+
+    // console.log(staticPets);
+    // const petsArr = JSON.parse(JSON.stringify(staticPets));
+    // console.log(petsArr);
+    return staticPets;
   }
 
   @Get(':id')

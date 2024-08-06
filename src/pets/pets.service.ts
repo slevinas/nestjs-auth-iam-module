@@ -5,25 +5,33 @@ import { Observable } from 'rxjs';
 import { CreatePetDto } from './dto/create-pet.dto';
 import { UpdatePetDto } from './dto/update-pet.dto';
 import { Pet } from './entities/pet.entity';
+import { firstValueFrom } from 'rxjs';
 
 @Injectable()
 export class PetsService {
   constructor(private readonly httpService: HttpService) {}
 
-  // callPicsumApi() {
-  //   this.httpService
-  //     .get('https://picsum.photos/v2/list?page=1&limit=10')
-  //     .subscribe((response) => {
-  //       // console.log('from pets.service.findAll response.data', response.data);
+  async callPicsumApi() {
+    console.log('from pets.controller.ccallPricsumApi()');
 
-  //       const data = response.data;
-  //       // Break circular reference if any
-  //       const sanitizedData = JSON.parse(JSON.stringify(data));
-  //       console.log('from pets.service.findAll sanitizedData', sanitizedData);
-  //       // console.log(typeof sanitizedData);
-  //       return sanitizedData;
-  //     });
-  // }
+    try {
+      const response = await firstValueFrom(
+        this.httpService.get('https://picsum.photos/v2/list?page=1&limit=10'),
+      );
+
+      const data = response.data;
+      // Break circular reference if any
+      const sanitizedData = JSON.parse(JSON.stringify(data));
+      console.log(
+        'from pets.controller.ccallPricsumApi()-sanitizedData',
+        sanitizedData,
+      );
+      return sanitizedData;
+    } catch (error) {
+      console.error('Error calling Picsum API', error);
+      throw error;
+    }
+  }
   create(createPetDto: CreatePetDto) {
     return 'This action adds a new pet';
   }

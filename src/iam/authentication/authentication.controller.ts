@@ -12,7 +12,7 @@ import { InjectDataSource, InjectRepository } from '@nestjs/typeorm';
 import { randomUUID } from 'crypto';
 import { Response } from 'express';
 import { ApiKey } from 'src/users/api-keys/entities/api-key.entity/api-key.entity';
-import { getRepository, Repository } from 'typeorm';
+import { Repository } from 'typeorm';
 
 import { Request } from 'express';
 import { toFileStream } from 'qrcode';
@@ -40,7 +40,6 @@ export class AuthenticationController {
     private readonly otpAuthService: OtpAuthenticationService,
   ) {}
 
-
   @HttpCode(HttpStatus.OK) // by default @Post does 201, we wanted 200 - hence using @HttpCode(HttpStatus.OK)
   @Post('sign-in')
   async signIn(
@@ -65,8 +64,8 @@ export class AuthenticationController {
     /*
     apiKey 5 28019a18-5e4d-44e6-b019-119e283e894d
     apiKeyAndHash {
-      apiKey: 'NSAyODAxOWExOC01ZTRkLTQ0ZTYtYjAxOS0xMTllMjgzZTg5NGQ=',
-      hashedKey: '$2b$10$RIfFQejmCzFfVO4YmZHcpOOlNYaU0gdeAjlN4V0UwaKzs4x.0DigK'
+      apiKey: 'NSAyODAxOWExOC01ZTRkLTQ0ZT=',
+      hashedKey: '$2b$10$RIlN4V0UwaKzs4x.0DigK'
     }
 
 */
@@ -90,7 +89,6 @@ export class AuthenticationController {
     return this.authService.signUp(signUpDto);
   }
 
- 
   @HttpCode(HttpStatus.OK) // changed since the default is 201
   @Post('refresh-tokens')
   refreshTokens(@Body() refreshTokenDto: RefreshTokenDto) {

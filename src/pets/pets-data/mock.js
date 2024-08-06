@@ -1,28 +1,26 @@
-const pets = [
+export default [
   {
     name: 'Calvin',
     type: 'Dog',
-    imageUrl: 'https://placedog.net/636/660',
+    imageUrl: 'https://placedog.net/336/360',
     description: 'Great at giving warm hugs.',
   },
   {
     name: 'Carly',
     type: 'Dog',
-    imageUrl: 'https://placedog.net/660/636',
+    imageUrl: 'https://placedog.net/360/336',
     description: 'Has a little nice tail',
   },
   {
     name: 'Muffy',
     type: 'Cat',
-    imageUrl: 'https://placekitten.com/636/660',
+    imageUrl: 'https://placekitten.com/336/360',
     description: 'Loves drinking milk',
   },
   {
     name: 'Beth',
     type: 'Cat',
-    imageUrl: 'https://placekitten.com/660/636',
-    description: 'Might give gentle bites when played with',
+    imageUrl: 'https://placekitten.com/360/336',
+    description: 'Very playful',
   },
 ];
-
-module.exports = pets;
