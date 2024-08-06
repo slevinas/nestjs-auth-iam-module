@@ -1,10 +1,10 @@
+import { ValidationPipe } from '@nestjs/common';
 import { NestFactory } from '@nestjs/core';
 import { AppModule } from './app.module';
-import { ValidationPipe } from '@nestjs/common';
-import { AccessTokenGuard } from './iam/authentication/guards/access-token/access-token.guard';
-import jwtConfig from './config/jwt.config';
-import { WrapResponseInterceptor } from './common/interceptors/wrap-response/wrap-response.interceptor';
 import { TimeoutInterceptor } from './common/interceptors/timeout/timeout.interceptor';
+import { WrapResponseInterceptor } from './common/interceptors/wrap-response/wrap-response.interceptor';
+import jwtConfig from './config/jwt.config';
+import { AccessTokenGuard } from './iam/authentication/guards/access-token.guard';
 
 async function bootstrap() {
   const app = await NestFactory.create(AppModule);

@@ -10,16 +10,16 @@ import {
   UseGuards,
 } from '@nestjs/common';
 import { Request } from 'express';
-import { AccessTokenGuard } from '../iam/authentication/guards/access-token/access-token.guard';
+import { Roles } from 'src/iam/authorization/decorators/roles.decorator';
+import { ActiveUser } from 'src/iam/decorators/active-user.decorator';
+import { ActiveUserData } from 'src/iam/interfaces/active-user-data.interface';
+import { Role } from 'src/users/entities/user.entity';
+import { AccessTokenGuard } from '../iam/authentication/guards/access-token.guard';
 import { Auth } from '../iam/decorators/auth.decorator';
 import { AuthType } from '../iam/enums/auth-type.enum';
 import { CoffeesService } from './coffees.service';
 import { CreateCoffeeDto } from './dto/create-coffee.dto';
 import { UpdateCoffeeDto } from './dto/update-coffee.dto';
-import { ActiveUser } from 'src/iam/decorators/active-user.decorator';
-import { ActiveUserData } from 'src/iam/interfaces/active-user-data.interface';
-import { Role } from 'src/users/entities/user.entity';
-import { Roles } from 'src/iam/authorization/decorators/roles.decorator';
 
 @Auth(AuthType.Bearer, AuthType.ApiKey)
 @Controller('coffees')

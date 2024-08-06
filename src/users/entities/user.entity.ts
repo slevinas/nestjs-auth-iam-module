@@ -81,9 +81,9 @@ export class User {
   // likely does not make sense. We use both in this course just to showcase
   // two different approaches to authorization.
 
-  // @Optional()
-  // @Column('json', { nullable: true })
-  // permissions?: string[];
+  @Optional()
+  @Column('json', { nullable: true })
+  permissions?: string[];
 
   @JoinTable()
   @OneToMany((type) => ApiKey, (apiKey) => apiKey.user)

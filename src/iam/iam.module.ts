@@ -16,9 +16,9 @@ import { User } from '../users/entities/user.entity';
 import { ApiKeysService } from './authentication/api-keys.service';
 import { RefreshTokenDto } from './authentication/dto/refresh-token.dto';
 import { RefreshTokenIdsStorage } from './authentication/entities/refreshTokenIdsStorage.entity';
-import { AccessTokenGuard } from './authentication/guards/access-token/access-token.guard';
-import { ApiKeyGuard } from './authentication/guards/api-key/api-key.guard';
-import { AuthenticationGuard } from './authentication/guards/authentication/authentication.guard';
+import { AccessTokenGuard } from './authentication/guards/access-token.guard';
+import { ApiKeyGuard } from './authentication/guards/api-key.guard';
+import { AuthenticationGuard } from './authentication/guards/authentication.guard';
 import { OtpAuthenticationService } from './authentication/otp-authentication.service';
 import { SessionAuthenticationController } from './authentication/session-authentication.controller';
 import { SessionAuthenticationService } from './authentication/session-authentication.service';
@@ -26,6 +26,8 @@ import { GoogleAuthenticationController } from './authentication/social/google-a
 import { GoogleAuthenticationService } from './authentication/social/google-authentication.service';
 import { Roles } from './authorization/decorators/roles.decorator';
 import { RolesGuard } from './authorization/guards/roles/roles.guard';
+import { UserSerializer } from './authentication/serializers/user-serializer/user-serializer';
+
 
 @Module({
   imports: [
@@ -54,6 +56,7 @@ import { RolesGuard } from './authorization/guards/roles/roles.guard';
     GoogleAuthenticationService,
     OtpAuthenticationService,
     SessionAuthenticationService,
+    UserSerializer,
   ],
   controllers: [
     AuthenticationController,

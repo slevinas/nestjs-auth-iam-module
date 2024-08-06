@@ -20,5 +20,6 @@ export interface ActiveUserData {
   /**
    * The subject's (user) permissions.
    */
-  permissions: string[];
+
+  permissions?: string[];
 }
