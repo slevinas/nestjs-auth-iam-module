@@ -1,8 +1,8 @@
 import { Injectable } from '@nestjs/common';
 import { InjectDataSource, InjectRepository } from '@nestjs/typeorm';
 import { DataSource, Repository } from 'typeorm';
-import { CreateCourseDatumDto } from './dto/create-course-datum.dto';
-import { UpdateCourseDatumDto } from './dto/update-course-datum.dto';
+
+
 import { Course } from './entities/course.entity';
 
 @Injectable()
@@ -12,7 +12,7 @@ export class CourseDataService {
     private readonly courseRepository: Repository<Course>,
     @InjectDataSource() private readonly dataSource: DataSource,
   ) {}
-  create(createCourseDatumDto: CreateCourseDatumDto) {
+  create(body: any) {
     return 'This action adds a new courseDatum';
   }
 
@@ -88,7 +88,7 @@ export class CourseDataService {
     return `This action returns a  courseDatum`;
   }
 
-  update(id: number, updateCourseDatumDto: UpdateCourseDatumDto) {
+  update(id: number, body: any) {
     return `This action updates a #${id} courseDatum`;
   }
 

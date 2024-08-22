@@ -10,8 +10,7 @@ import {
 } from '@nestjs/common';
 import { InjectDataSource, InjectRepository } from '@nestjs/typeorm';
 import { CourseDataService } from './course-data.service';
-import { CreateCourseDatumDto } from './dto/create-course-datum.dto';
-import { UpdateCourseDatumDto } from './dto/update-course-datum.dto';
+
 // import { DataSource } from 'typeorm';
 import { Auth } from 'src/iam/decorators/auth.decorator';
 import { AuthType } from 'src/iam/enums/auth-type.enum';
@@ -38,16 +37,15 @@ export class CourseData {
   ) {}
 
   @Post('not-implemented')
-  create(@Body() createCourseDatumDto: CreateCourseDatumDto) {
-    return this.courseDataService.create(createCourseDatumDto);
+  create(@Body() body: any) {
+    return this.courseDataService.create(body);
   }
 
   // @Auth(AuthType.Bearer)
   @Get('course')
-  async getCourseData(@Req() request: Request,) {
-  
+  async getCourseData(@Req() request: Request) {
     const courseData = await this.courseDataService.getCourseDataFromDb();
- 
+
     return courseData;
   }
 
@@ -55,14 +53,12 @@ export class CourseData {
   async getCourseMeta() {
     const courseMetaData = await this.courseDataService.getCourseMetaData();
 
-   
     return courseMetaData;
   }
 
   @Get('course-meta-2')
   async getCourseMeta2() {
     try {
-      
       const result = await this.dataSource
         .query(`SELECT "course"."id" AS "course_id",
         "course"."title" AS "course_title",
@@ -76,7 +72,6 @@ export class CourseData {
         LEFT JOIN "chapter" "chapter" ON "chapter"."courseId"="course"."id"  
         LEFT JOIN "lesson" "lesson" ON "lesson"."chapterId"="chapter"."id" 
         ORDER BY   "chapter"."id",  "lesson"."id";`);
-
 
       if (result) {
         return result;
@@ -92,10 +87,7 @@ export class CourseData {
       where: { id: 1 },
     });
 
-    
-
     if (firstLessong) {
-  
       const path =
         '/course/chapter/1-chapter-1/lesson/1-introduction-to-typescript-with-vue-js-3';
       return { ...firstLessong[0], path };
@@ -108,11 +100,8 @@ export class CourseData {
   }
 
   @Patch(':id')
-  update(
-    @Param('id') id: string,
-    @Body() updateCourseDatumDto: UpdateCourseDatumDto,
-  ) {
-    return this.courseDataService.update(+id, updateCourseDatumDto);
+  update(@Param('id') id: string, @Body() body: any) {
+    return this.courseDataService.update(+id, body);
   }
 
   @Delete(':id')
