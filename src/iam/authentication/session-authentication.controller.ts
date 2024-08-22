@@ -28,8 +28,11 @@ export class SessionAuthenticationController {
   @HttpCode(HttpStatus.OK)
   @Post('sign-in')
   async signIn(@Req() request: Request, @Body() signInDto: SignInDto) {
-    
     const user = await this.sessionAuthService.signIn(signInDto);
+    console.log(
+      'From session-authentication.controller.ts: signIn -> user',
+      user,
+    );
     await promisify(request.logIn).call(request, user); // 👈  This line is NEW
   }
 

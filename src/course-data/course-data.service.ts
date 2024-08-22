@@ -2,7 +2,6 @@ import { Injectable } from '@nestjs/common';
 import { InjectDataSource, InjectRepository } from '@nestjs/typeorm';
 import { DataSource, Repository } from 'typeorm';
 
-
 import { Course } from './entities/course.entity';
 
 @Injectable()
@@ -22,7 +21,6 @@ export class CourseDataService {
       relations: ['chapters', 'chapters.lessons'],
     });
     if (courseRepository.length > 0) {
-      
       // Sort chapters by number in descending order
       const sortedChapters = courseRepository[0].chapters.sort(
         (a, b) => a.number - b.number,
@@ -39,7 +37,6 @@ export class CourseDataService {
         };
       });
 
-  
       if (chaptersOnly) {
         return chapters;
       }
@@ -57,7 +54,6 @@ export class CourseDataService {
     });
 
     if (courseRepository.length > 0) {
-     
       const courseTitle = courseRepository[0].title;
 
       // Sort chapters by number in descending order
@@ -65,9 +61,7 @@ export class CourseDataService {
         (a, b) => a.number - b.number,
       );
 
-      
       const chapters = sortedChapters.map((chapter) => {
-      
         const lessons = chapter.lessons.map((lesson) => ({
           title: lesson.title,
           slug: lesson.slug,
@@ -79,7 +73,7 @@ export class CourseDataService {
           lessons,
         };
       });
-     
+
       return { courseTitle, chapters };
     }
   }

@@ -18,7 +18,7 @@ export class Lesson {
   @Column({ unique: false })
   title?: string;
 
-  @Column()
+  @Column({ unique: true })
   slug: string;
 
   @Column()

@@ -11,6 +11,7 @@ import {
   PrimaryGeneratedColumn,
 } from 'typeorm';
 import { ApiKey } from '../api-keys/entities/api-key.entity/api-key.entity';
+import { LessonProgress } from 'src/course-data/entities/lessonProgress.entity';
 // import { Attendee } from './../events/attendee.entity';
 // import { Event } from './../events/event.entity';
 // import { Profile } from './profile.entity';
@@ -88,4 +89,6 @@ export class User {
   @JoinTable()
   @OneToMany((type) => ApiKey, (apiKey) => apiKey.user)
   apiKeys: ApiKey[]; // relationship with ApiKey Entity
+
+
 }
