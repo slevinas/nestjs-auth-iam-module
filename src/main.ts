@@ -8,7 +8,6 @@ import { AccessTokenGuard } from './iam/authentication/guards/access-token.guard
 
 async function bootstrap() {
   const app = await NestFactory.create(AppModule);
-  app.enableCors();
 
   // This will enable the global validation pipe for the DTOs
   app.useGlobalPipes(new ValidationPipe());
@@ -17,6 +16,9 @@ async function bootstrap() {
     new WrapResponseInterceptor(),
     new TimeoutInterceptor(),
   );
+  app.enableCors({
+    origin: ['http://localhost:3000'],
+  });
   await app.listen(3535);
 }
 bootstrap();

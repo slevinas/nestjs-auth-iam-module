@@ -12,15 +12,14 @@ import { CoffeesModule } from './coffees/coffees.module';
 import { IamModule } from './iam/iam.module';
 import { JwtModule } from '@nestjs/jwt';
 import { PetsModule } from './pets/pets.module';
+import { CourseDataModule } from './course-data/course-data.module';
 import jwtConfig from './config/jwt.config';
 
 const envFilePath = `${process.env.NODE_ENV ?? ''}.env`;
 const typeormConfigFilePath =
   process.env.NODE_ENV !== 'production' ? ormConfig : ormConfigProd;
 
-console.log('envFilePath: ', envFilePath);
-console.log('typeormConfigFilePath: ', typeormConfigFilePath);
-console.log(process.env.DB_PASSWORD, process.env.DB_USER);
+
 
 @Module({
   imports: [
@@ -43,6 +42,7 @@ console.log(process.env.DB_PASSWORD, process.env.DB_USER);
     JwtModule.registerAsync(jwtConfig.asProvider()),
     ConfigModule.forFeature(jwtConfig),
     PetsModule,
+    CourseDataModule,
   ],
   controllers: [AppController],
   providers: [AppService],

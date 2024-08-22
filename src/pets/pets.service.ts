@@ -12,7 +12,7 @@ export class PetsService {
   constructor(private readonly httpService: HttpService) {}
 
   async callPicsumApi() {
-    console.log('from pets.controller.ccallPricsumApi()');
+
 
     try {
       const response = await firstValueFrom(
@@ -22,10 +22,7 @@ export class PetsService {
       const data = response.data;
       // Break circular reference if any
       const sanitizedData = JSON.parse(JSON.stringify(data));
-      console.log(
-        'from pets.controller.ccallPricsumApi()-sanitizedData',
-        sanitizedData,
-      );
+     
       return sanitizedData;
     } catch (error) {
       console.error('Error calling Picsum API', error);

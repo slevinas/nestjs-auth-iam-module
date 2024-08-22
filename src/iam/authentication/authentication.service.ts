@@ -33,13 +33,17 @@ export class AuthenticationService {
   ) {}
 
   async signUp(signUpDto: SignUpDto) {
-    console.log('from AuthenticationService signUp', signUpDto);
+   
     try {
       const user = new User(signUpDto);
 
       user.password = await this.hashingService.hash(signUpDto.password);
-
-      await this.usersRepository.save(user);
+      const responseFromUserRepositorySave = await this.usersRepository.save(
+        user,
+      );
+      
+    
+      return responseFromUserRepositorySave;
     } catch (err) {
       const pgUniqueViolationErrorCode = '23505';
       if (err.code === pgUniqueViolationErrorCode) {
@@ -50,7 +54,7 @@ export class AuthenticationService {
   }
 
   async signIn(signInDto: SignInDto) {
-    console.log('from AuthenticationService signInDto is:', signInDto);
+  
     const user = await this.usersRepository.findOneBy({
       email: signInDto.email,
     });
@@ -73,8 +77,8 @@ export class AuthenticationService {
         throw new UnauthorizedException('Invalid 2FA code');
       }
     }
-
-    return await this.generateTokens(user);
+    const accessTokenAndRefreshToken = await this.generateTokens(user);
+    return accessTokenAndRefreshToken;
   }
 
   async generateTokens(user: User) {

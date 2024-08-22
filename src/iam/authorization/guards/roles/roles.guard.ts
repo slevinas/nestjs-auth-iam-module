@@ -25,8 +25,7 @@ export class RolesGuard implements CanActivate {
       REQUEST_USER_KEY
     ];
     const testContextRoles = contextRoles.some((role) => user.role === role);
-    console.log('from roles.guard.ts the user is', user);
-    console.log('from roles.guard.ts the contextRoles is', contextRoles);
+   
     return testContextRoles;
   }
 }

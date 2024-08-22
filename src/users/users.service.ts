@@ -8,8 +8,7 @@ import { User } from './entities/user.entity';
 @Injectable()
 export class UsersService {
   constructor(@InjectDataSource() private readonly dataSource: DataSource) {
-    // console.log('UsersService constructor');
-    // console.log('dataSource: ', dataSource);
+  
   }
 
   async create(createUserDto: CreateUserDto) {

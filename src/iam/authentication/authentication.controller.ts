@@ -15,6 +15,7 @@ import { ApiKey } from 'src/users/api-keys/entities/api-key.entity/api-key.entit
 import { Repository } from 'typeorm';
 
 import { Request } from 'express';
+import { access } from 'fs';
 import { toFileStream } from 'qrcode';
 import { User } from 'src/users/entities/user.entity';
 import { ActiveUser } from '../decorators/active-user.decorator';
@@ -40,6 +41,21 @@ export class AuthenticationController {
     private readonly otpAuthService: OtpAuthenticationService,
   ) {}
 
+  @Auth(AuthType.None)
+  @Post('sign-up')
+  async signUp(@Body() signUpDto: SignUpDto) {
+    
+    const responsFromAuthServiceSignup = await this.authService.signUp(
+      signUpDto,
+    );
+
+    if (responsFromAuthServiceSignup) {
+     
+    }
+
+    return 'responsFromAuthServiceSignup';
+  }
+
   @HttpCode(HttpStatus.OK) // by default @Post does 201, we wanted 200 - hence using @HttpCode(HttpStatus.OK)
   @Post('sign-in')
   async signIn(
@@ -47,35 +63,29 @@ export class AuthenticationController {
     @Res({ passthrough: true }) response: Response,
     @Body() signInDto: SignInDto,
   ) {
-    const accessToken = await this.authService.signIn(signInDto);
-    // Set the cookie with the access token
-    // response.cookie('accessToken', accessToken, {
-    //   secure: true,
-    //   httpOnly: true,
-    //   sameSite: true,
-    // });
-    return accessToken;
+    const accessTokenAndRefreshToken = await this.authService.signIn(signInDto);
+    if (accessTokenAndRefreshToken) {
+     
+      const testingResponseObject = {
+        ...accessTokenAndRefreshToken,
+        email: signInDto.email,
+      };
+     
+      return { ...accessTokenAndRefreshToken, email: signInDto.email };
+    }
+
+    //  // For Setting the cookie on the response object which will be sent to the client (browser)
+    //   response.cookie('accessToken', accessToken, {
+    //     secure: true,
+    //     httpOnly: true,
+    //     sameSite: true,
+    //   });
   }
 
   @Get('create-api-key')
   async createApiKey() {
     const apiKeyAndHash = await this.apiKeysService.createAndHash(5);
 
-    /*
-    apiKey 5 28019a18-5e4d-44e6-b019-119e283e894d
-    apiKeyAndHash {
-      apiKey: 'NSAyODAxOWExOC01ZTRkLTQ0ZT=',
-      hashedKey: '$2b$10$RIlN4V0UwaKzs4x.0DigK'
-    }
-
-*/
-    // const apiKey = new ApiKey();
-    // apiKey.key = apiKeyAndHash.hashedKey;
-    // apiKey.uuid = '5';
-    // apiKey.user = existingUser;
-
-    // Save the ApiKey instance to the database
-    // await this.apiKeyRepository.save(apiKey);
 
     return await this.apiKeyRepository.save({
       key: apiKeyAndHash.hashedKey,
@@ -83,11 +93,6 @@ export class AuthenticationController {
       user: { id: 8 },
     });
   } // this is a test endpoint to create an API key
-
-  @Post('sign-up')
-  async signUp(@Body() signUpDto: SignUpDto) {
-    return this.authService.signUp(signUpDto);
-  }
 
   @HttpCode(HttpStatus.OK) // changed since the default is 201
   @Post('refresh-tokens')
@@ -123,5 +128,14 @@ export class AuthenticationController {
     await this.otpAuthService.enableTfaForUser(activeUser.email, secret);
     response.type('png');
     return toFileStream(response, uri);
+  }
+
+  @Auth(AuthType.Bearer)
+  @HttpCode(HttpStatus.OK)
+  @Get('check-access-token')
+  async checkAccessToken(@Req() request: Request) {
+    const testUserDataOnRequest = request['user'];
+   
+    return testUserDataOnRequest;
   }
 }

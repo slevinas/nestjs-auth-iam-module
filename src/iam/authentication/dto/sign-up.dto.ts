@@ -10,6 +10,6 @@ export class SignUpDto extends PartialType(User) {
   @IsEmail()
   email?: string;
 
-  @MinLength(8)
+  @MinLength(2)
   password?: string;
 }

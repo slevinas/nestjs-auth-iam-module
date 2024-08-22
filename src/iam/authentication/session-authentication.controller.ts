@@ -28,10 +28,7 @@ export class SessionAuthenticationController {
   @HttpCode(HttpStatus.OK)
   @Post('sign-in')
   async signIn(@Req() request: Request, @Body() signInDto: SignInDto) {
-    console.log(
-      'from SessionAuthenticationController signInDto is:',
-      signInDto,
-    );
+    
     const user = await this.sessionAuthService.signIn(signInDto);
     await promisify(request.logIn).call(request, user); // 👈  This line is NEW
   }

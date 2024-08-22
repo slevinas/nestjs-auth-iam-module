@@ -32,7 +32,7 @@ export class PetsController {
 
   @Get('call-picsum-api')
   async ccallPicsumApi() {
-    console.log('from pets.controller.ccallPricsumApi()');
+  
 
     const responseFromService = await this.petsService.callPicsumApi();
 
@@ -41,20 +41,7 @@ export class PetsController {
 
   @Get('api-static-data')
   async getApiStaticData() {
-    console.log('from pets.controller.getApiStaticData()');
-    // try {
-    //   const petsStrArray = fs.readFileSync(
-    //     'src/pets/pets-data/mock.js',
-    //     'utf8',
-    //   );
-    //   if (petsStrArray) {
-    //     return petsStrArray;
-    //   } else {
-    //     throw new Error('No data found');
-    //   }
-    // } catch (error) {
-    //   console.error('Error calling Picsum API', error);
-    // }
+   
     const staticPets = [
       {
         name: 'Calvin',
@@ -82,9 +69,6 @@ export class PetsController {
       },
     ];
 
-    // console.log(staticPets);
-    // const petsArr = JSON.parse(JSON.stringify(staticPets));
-    // console.log(petsArr);
     return staticPets;
   }
 
